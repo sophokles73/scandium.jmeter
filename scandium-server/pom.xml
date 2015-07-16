@@ -43,21 +43,30 @@
 			<plugin>
 				<groupId>org.jolokia</groupId>
 				<artifactId>docker-maven-plugin</artifactId>
-				<version>0.13.0</version>
-				<!-- executions>
+				<version>${docker.plugin.version}</version>
+				<executions>
 					<execution>
+						<id>build_container</id>
 						<phase>pre-integration-test</phase>
 						<goals>
 							<goal>build</goal>
+							<goal>push</goal>
 						</goals>
 					</execution>
-				</executions-->
+					<execution>
+						<id>remove_data_containers</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>remove</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
-					<dockerHost>${docker.host}</dockerHost>
+					<dockerHost>tcp://${build.docker.hostname}:2375</dockerHost>
 					<verbose>true</verbose>
 					<images>
 						<image>
-							<name>${docker.registry.uri}/sophokles73/scandium:${project.version}</name>
+							<name>${docker.registry.uri}/${docker.username}/${scandium.imagename}:${project.version}</name>
 							<build>
 								<from>java:8-jre</from>
 								<maintainer>Kai Hudalla &lt;kai.hudalla@bosch-si.com&gt;</maintainer>
@@ -97,7 +106,4 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<properties>
-		<docker.registry.uri>docker.bosch-si.com</docker.registry.uri>
-	</properties>
 </project>
