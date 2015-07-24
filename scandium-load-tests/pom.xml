@@ -41,7 +41,7 @@
 							<run>
 								<memory>68719476736</memory>
 								<ports>
-									<port>5684:5684/udp</port>
+									<port>dtls.port:5684/udp</port>
 								</ports>
 							</run>
 						</image>
@@ -71,6 +71,7 @@
 				<configuration>
 					<propertiesUser>
 						<serverHost>${loadtest.docker.hostname}</serverHost>
+						<serverPort>${dtls.port}</serverPort>
 					</propertiesUser>
 				</configuration>
 			</plugin>
