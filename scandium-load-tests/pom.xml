@@ -69,6 +69,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>
+					<ignoreResultFailures>true</ignoreResultFailures>
 					<propertiesUser>
 						<serverHost>${loadtest.docker.hostname}</serverHost>
 						<serverPort>${dtls.port}</serverPort>
