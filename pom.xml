@@ -16,7 +16,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.javaVersion>1.7</project.build.javaVersion>
-		<docker.plugin.version>0.13.0</docker.plugin.version>
+		<docker.plugin.version>0.13.2</docker.plugin.version>
 		<docker.registry.uri>docker.bosch-si.com</docker.registry.uri>
 		<docker.username>sophokles73</docker.username>
 		<scandium.imagename>scandium</scandium.imagename>
