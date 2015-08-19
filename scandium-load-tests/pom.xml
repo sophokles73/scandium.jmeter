@@ -11,44 +11,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.jolokia</groupId>
-				<artifactId>docker-maven-plugin</artifactId>
-				<version>${docker.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>start_scandium</id>
-						<phase>pre-integration-test</phase>
-						<goals>
-							<goal>start</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>stop_scandium</id>
-						<phase>post-integration-test</phase>
-						<goals>
-							<goal>stop</goal>
-							<goal>remove</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<dockerHost>tcp://${loadtest.docker.hostname}:2375</dockerHost>
-					<verbose>true</verbose>
-					<autoPull>always</autoPull>
-					<images>
-						<image>
-							<name>${docker.registry.uri}/${docker.username}/${scandium.imagename}:${project.version}</name>
-							<run>
-								<memory>68719476736</memory>
-								<ports>
-									<port>dtls.port:5684/udp</port>
-								</ports>
-							</run>
-						</image>
-					</images>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>com.lazerycode.jmeter</groupId>
 				<artifactId>jmeter-maven-plugin</artifactId>
 				<version>1.10.1</version>
@@ -78,6 +40,54 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>docker_based</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jolokia</groupId>
+						<artifactId>docker-maven-plugin</artifactId>
+						<version>${docker.plugin.version}</version>
+						<executions>
+							<execution>
+								<id>start_scandium</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop_scandium</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+									<goal>remove</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<dockerHost>tcp://${loadtest.docker.hostname}:2375</dockerHost>
+							<verbose>true</verbose>
+							<autoPull>always</autoPull>
+							<images>
+								<image>
+									<name>${docker.registry.uri}/${docker.username}/${scandium.imagename}:${project.version}</name>
+									<run>
+										<memory>68719476736</memory>
+										<ports>
+											<port>dtls.port:5684/udp</port>
+										</ports>
+									</run>
+								</image>
+							</images>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<dependency>
