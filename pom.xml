@@ -12,11 +12,8 @@
 		<module>scandium-server</module>
 		<module>scandium-load-tests</module>
 	</modules>
-	
+
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.javaVersion>1.7</project.build.javaVersion>
-		<docker.plugin.version>0.13.2</docker.plugin.version>
 		<docker.registry.uri>docker.bosch-si.com</docker.registry.uri>
 		<docker.username>sophokles73</docker.username>
 		<scandium.imagename>scandium</scandium.imagename>
@@ -25,25 +22,32 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.eclipse.californium</groupId>
+				<groupId>${project.groupId}</groupId>
 				<artifactId>scandium</artifactId>
 				<version>1.0.0-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-					<source>${project.build.javaVersion}</source>
-					<target>${project.build.javaVersion}</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.3</version>
+					<configuration>
+						<source>1.7</source>
+						<target>1.7</target>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.jolokia</groupId>
+					<artifactId>docker-maven-plugin</artifactId>
+					<version>0.13.6</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 </project>
