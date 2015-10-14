@@ -19,6 +19,14 @@
 		<scandium.imagename>scandium</scandium.imagename>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>eclipse_snapshots</id>
+			<name>Eclipse Snapshots</name>
+			<url>https://repo.eclipse.org/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
