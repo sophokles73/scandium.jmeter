@@ -58,12 +58,11 @@ public class PskDtlsServer implements CommandLineRunner {
 		}
 
 		// @Override
-		public void receiveData(final RawData raw) {
-			if (raw.getAddress() != null &&  raw.getPort() > 0) {
-				StringBuffer b = new StringBuffer("ACK: ").append(new String(raw.getBytes()));
-				connector.send(new RawData(b.toString().getBytes(), raw.getAddress(), raw.getPort()));
+		public void receiveData(final RawData request) {
+			if (request.getAddress() != null &&  request.getPort() > 0) {
+				connector.send(new RawData(request.getBytes(), request.getAddress(), request.getPort()));
 			} else {
-				LOGGER.info("Received message without sender address, discarding");
+				LOGGER.info("Received message without sender address, discarding...");
 			}
 		}
 	}
@@ -76,6 +75,7 @@ public class PskDtlsServer implements CommandLineRunner {
 
 		DtlsConnectorConfig config = new DtlsConnectorConfig.Builder(new InetSocketAddress(DEFAULT_PORT))
 			.setPskStore(pskStore)
+			.setMaxFragmentLengthCode(3)
 			.build();
 		ConnectionStore connectionStore = new InMemoryConnectionStore(1000, 60);
 		dtlsConnector = new DTLSConnector(config, connectionStore);
