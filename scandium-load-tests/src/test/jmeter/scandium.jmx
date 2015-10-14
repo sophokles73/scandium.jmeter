@@ -41,7 +41,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="local port" elementType="Argument">
                 <stringProp name="Argument.name">local port</stringProp>
-                <stringProp name="Argument.value">${__intSum(5000, ${__threadNum()})}</stringProp>
+                <stringProp name="Argument.value">${__P(localPort,0)}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="client identity" elementType="Argument">

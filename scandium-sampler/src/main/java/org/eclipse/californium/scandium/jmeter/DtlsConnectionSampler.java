@@ -10,7 +10,6 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
-import org.apache.jmeter.testelement.TestElement;
 import org.eclipse.californium.elements.RawData;
 import org.eclipse.californium.elements.RawDataChannel;
 import org.eclipse.californium.scandium.DTLSConnector;
@@ -36,14 +35,12 @@ public class DtlsConnectionSampler extends AbstractJavaSamplerClient {
 	private static final int SUCCESS_THRESHOLD_MILLIS = 600;
 	private DTLSConnector connector;
 	private int successThreshold = SUCCESS_THRESHOLD_MILLIS;
-	private String name;
 	private String remoteHost;
 	private int remotePort;
 	private LatchBasedRawDataChannel clientMessageHandler;
 	private InetSocketAddress serverAddress;
 	
 	public DtlsConnectionSampler() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -59,7 +56,7 @@ public class DtlsConnectionSampler extends AbstractJavaSamplerClient {
 
 		return result;
 	}
-	
+
 	@Override
 	public void setupTest(JavaSamplerContext context) {
 		int localPort = context.getIntParameter(PARAM_LOCAL_PORT, DEFAULT_LOCAL_PORT);
@@ -68,7 +65,6 @@ public class DtlsConnectionSampler extends AbstractJavaSamplerClient {
 		remoteHost = context.getParameter(PARAM_SERVER_HOST, DEFAULT_SERVER_HOST);
 		remotePort = context.getIntParameter(PARAM_SERVER_PORT, DEFAULT_SERVER_PORT);
 		successThreshold = context.getIntParameter(PARAM_SUCCESS_THRESHOLD_MS, SUCCESS_THRESHOLD_MILLIS);
-		name = context.getParameter(TestElement.NAME);
 
 		serverAddress = new InetSocketAddress(remoteHost, remotePort);
 		InetSocketAddress localAddress = new InetSocketAddress(localPort);
@@ -88,24 +84,24 @@ public class DtlsConnectionSampler extends AbstractJavaSamplerClient {
 			if (result.isSuccessful()) {
 				getLogger().info(
 						String.format("Successfully established DTLS connection from [%s] to [%s]",
-								localAddress, serverAddress));
+								connector.getAddress(), serverAddress));
 			} else {
 				connector.stop();
 				getLogger().info(
 						String.format("Could not establish DTLS connection from [%s] to [%s]: %s",
-								localAddress, serverAddress, result.getResponseMessage()));
+								connector.getAddress(), serverAddress, result.getResponseMessage()));
 			}
 		} catch (IOException e) {
 			getLogger().error("Could not start DTLSConnector", e);
 		}
 	}
-	
+
 	public SampleResult runTest(JavaSamplerContext context) {
 		int requestNo = context.getIntParameter(PARAM_REQUEST_NO);
 		DatagramWriter writer = new DatagramWriter();
 		writer.write(requestNo, 32);
 		SampleResult result = new SampleResult();
-		result.setSampleLabel(name);
+		result.setSampleLabel(String.format("Snd/Rcv %d", requestNo));
 		result.setSamplerData(String.format("host: %s, port: %d, msg: %d", remoteHost, remotePort, requestNo));
 		result.sampleStart();
 		sendMessage(writer.toByteArray(), successThreshold, result);
@@ -121,25 +117,25 @@ public class DtlsConnectionSampler extends AbstractJavaSamplerClient {
 			connector = null;
 		}
 	}
-	
+
 	private class LatchBasedRawDataChannel implements RawDataChannel {
-		
+
 		private CountDownLatch latch;
 		private byte[] response;
-		
+
 		public LatchBasedRawDataChannel(CountDownLatch latch) {
 			setLatch(latch);
 		}
-		
+
 		public void setLatch(CountDownLatch latch) {
 			this.latch = latch;
 		}
-		
+
 		public void receiveData(RawData raw) {
 			response = raw.getBytes();
 			latch.countDown();
 		}
-		
+
 		public byte[] getResponse() {
 			return response;
 		}
@@ -156,14 +152,15 @@ public class DtlsConnectionSampler extends AbstractJavaSamplerClient {
 			try {
 				if (latch.await(connectionEstablishmentThreshold, TimeUnit.MILLISECONDS)) {
 					if (Arrays.equals(payload, clientMessageHandler.getResponse())) {
-						sampleResult.setResponseMessage("Response received matches request");
+						sampleResult.setResponseMessageOK();
 						success = true;
 					} else {
-						sampleResult.setResponseMessage("Response received does not match request");
+						sampleResult.setResponseMessage("Error");
+						sampleResult.setResponseData(clientMessageHandler.getResponse());
 					}
 				} else {
 					sampleResult.setResponseMessage(
-							String.format("DTLS roundtrip timed out at [%dms]", connectionEstablishmentThreshold));
+							String.format("Timeout after %d ms", connectionEstablishmentThreshold));
 				}
 			} catch (InterruptedException e) {
 				sampleResult.setResponseMessage(e.getMessage());
