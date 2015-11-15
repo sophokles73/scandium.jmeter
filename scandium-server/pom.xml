@@ -65,12 +65,13 @@
 					<verbose>true</verbose>
 					<images>
 						<image>
-							<name>${docker.registry.uri}/${docker.username}/${scandium.imagename}:${project.version}</name>
+							<name>${image.name}</name>
 							<build>
 								<from>java:8-jre</from>
 								<maintainer>Kai Hudalla &lt;kai.hudalla@bosch-si.com&gt;</maintainer>
 								<tags>
 									<tag>latest</tag>
+									<tag>${project.version}</tag>
 								</tags>
 								<ports>
 									<port>5684</port>

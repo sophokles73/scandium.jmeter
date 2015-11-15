@@ -72,7 +72,7 @@
 							<autoPull>always</autoPull>
 							<images>
 								<image>
-									<name>${docker.registry.uri}/${docker.username}/${scandium.imagename}:${project.version}</name>
+									<name>${image.name}</name>
 									<run>
 										<memory>68719476736</memory>
 										<ports>

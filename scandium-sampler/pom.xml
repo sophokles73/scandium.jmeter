@@ -17,7 +17,7 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.californium</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>scandium</artifactId>
 		</dependency>
 	</dependencies>

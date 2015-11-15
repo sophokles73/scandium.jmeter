@@ -13,16 +13,13 @@
 		<module>scandium-load-tests</module>
 	</modules>
 
-	<properties>
-		<docker.registry.uri>docker.bosch-si.com</docker.registry.uri>
-		<docker.username>sophokles73</docker.username>
-		<scandium.imagename>scandium</scandium.imagename>
-	</properties>
-
 	<repositories>
 		<repository>
 			<id>eclipse_snapshots</id>
 			<name>Eclipse Snapshots</name>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
 			<url>https://repo.eclipse.org/content/repositories/snapshots/</url>
 		</repository>
 	</repositories>
@@ -32,7 +29,7 @@
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>scandium</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
+				<version>1.0.0-RC2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
