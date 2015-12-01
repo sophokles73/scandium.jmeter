@@ -88,9 +88,9 @@
 							<autoPull>always</autoPull>
 							<images>
 								<image>
-									<name>${image.name}</name>
+									<name>${image.name}:${scandium.version}</name>
 									<run>
-										<memory>68719476736</memory>
+										<memory>33554432</memory>
 										<ports>
 											<port>server.port:5684/udp</port>
 										</ports>

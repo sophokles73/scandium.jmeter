@@ -11,12 +11,16 @@
 	<packaging>jar</packaging>
 	<description>Dockerized Scandium server</description>
 
+	<properties>
+		<spring.boot.version>1.2.7.RELEASE</spring.boot.version>
+	</properties>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>1.2.7.RELEASE</version>
+				<version>${spring.boot.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -47,7 +51,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>1.2.5.RELEASE</version>
+				<version>${spring.boot.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -86,8 +90,7 @@
 								<from>java:8-jre</from>
 								<maintainer>Kai Hudalla &lt;kai.hudalla@bosch-si.com&gt;</maintainer>
 								<tags>
-									<tag>latest</tag>
-									<tag>${project.version}</tag>
+									<tag>${scandium.version}</tag>
 								</tags>
 								<ports>
 									<port>5684</port>
