@@ -8,10 +8,25 @@
 	</parent>
 	<artifactId>scandium-load-tests</artifactId>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.californium</groupId>
+			<artifactId>scandium</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>scandium-sampler</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
 	<profiles>
 		<profile>
 			<!-- 
-				Activate this profile to execute the JMeter load tests.
+				Activate this profile to execute the JMeter load tests against an already running server.
+
 				Set the ${server.hostname} maven variable to the host you want to run the test against.
 				Set the ${server.port} maven variable to the port number the DTLS server is listening on.
 			 -->
@@ -53,6 +68,7 @@
 			<!-- 
 				Activate this profile to start up a Scandium docker image on a docker host that the JMeter tests
 				can then be run against.
+
 				Set the ${server.hostname} maven variable to the hostname of the docker host you want to start the
 				Scandium image on. The docker host is expected to listen on the standard port (2375) for docker commands.
 				The ${server.port} maven variable is automatically set to the port the docker container has mapped the DTLS port (5684)
@@ -90,7 +106,7 @@
 								<image>
 									<name>${image.name}:${scandium.version}</name>
 									<run>
-										<memory>33554432</memory>
+										<memory>134217728</memory>
 										<ports>
 											<port>server.port:5684/udp</port>
 										</ports>
@@ -98,6 +114,130 @@
 								</image>
 							</images>
 						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- 
+			Activate this profile to run load tests on public cloud infrastructure provided
+			by the INST test center team.
+		 -->
+		<profile>
+			<id>run_cloud_load_test</id>
+			<properties>
+				<docker.user.token>lig1jomqv5e1354unue5j53feb</docker.user.token>
+				<docker.user.secret>7b16v18ol56l8cf6dtsli0prgi</docker.user.secret>
+				<jmeter.user.token>sa4a16prt2gq2qtsrqgpbpd345</jmeter.user.token>
+				<jmeter.user.secret>gr7bv50i6mgvj4n8cj0if05g4q</jmeter.user.secret>
+				<docker.service.url>http://be6pl0263.bosch-si.com:8083/docker</docker.service.url>
+				<jmeter.service.url>http://be6pl0263.bosch-si.com:8082/jmeter</jmeter.service.url>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.6</version>
+						<executions>
+							<execution>
+								<id>create_jmeter_deps</id>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<phase>pre-integration-test</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<descriptors>
+								<descriptor>src/test/jmeter/deps.xml</descriptor>
+							</descriptors>
+							<attach>false</attach>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>com.bosch.testing.services.mojos</groupId>
+						<artifactId>docker-maven-plugin</artifactId>
+						<version>1.0-SNAPSHOT</version>
+						<executions>
+							<execution>
+								<id>setup-container</id>
+								<goals>
+									<goal>setup</goal>
+								</goals>
+								<phase>pre-integration-test</phase>
+								<configuration>
+									<serviceUrl>${docker.service.url}</serviceUrl>
+									<userToken>${docker.user.token}</userToken>
+									<userSecret>${docker.user.secret}</userSecret>
+									<node>
+										<cores>2</cores>
+										<ram>1</ram>
+										<count>1</count>
+										<monitor>true</monitor>
+										<containers>
+											<container>
+												<imageName>${image.name}:${scandium.version}</imageName>
+												<symbolicName>scandium</symbolicName>
+												<portMapping>10000:5684/udp</portMapping>
+											</container>
+										</containers>
+									</node>
+								</configuration>
+							</execution>
+							<execution>
+								<id>collect-monitoring</id>
+								<goals>
+									<goal>monitoring</goal>
+								</goals>
+								<phase>post-integration-test</phase>
+								<configuration>
+									<resultFile>${project.build.directory}/load-test/monitoring.log</resultFile>
+									<serviceUrl>${docker.service.url}</serviceUrl>
+									<userToken>${docker.user.token}</userToken>
+									<userSecret>${docker.user.secret}</userSecret>
+								</configuration>
+							</execution>
+							<execution>
+								<id>teardown-container</id>
+								<goals>
+									<goal>teardown</goal>
+								</goals>
+								<phase>post-integration-test</phase>
+								<configuration>
+									<serviceUrl>${docker.service.url}</serviceUrl>
+									<userToken>${docker.user.token}</userToken>
+									<userSecret>${docker.user.secret}</userSecret>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>com.bosch.testing.services.mojos</groupId>
+						<artifactId>jmeter-maven-plugin</artifactId>
+						<version>1.0-SNAPSHOT</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>jmeter</goal>
+								</goals>
+								<phase>integration-test</phase>
+								<configuration>
+									<serviceUrl>${jmeter.service.url}</serviceUrl>
+									<userToken>${jmeter.user.token}</userToken>
+									<userSecret>${jmeter.user.secret}</userSecret>
+									<testplan>${project.basedir}/src/test/jmeter/scandium.jmx</testplan>
+									<customArtifacts>${project.build.directory}/${project.build.finalName}-jmeter-deps.zip</customArtifacts>
+									<resultDirectory>${project.build.directory}/load-test</resultDirectory>
+									<instanceCount>1</instanceCount>
+									<customProperties>
+										<!-- Property docker.node.ip is set by execution of docker:setup -->
+										<!-- DO NOT SET THIS PROPERTY WITHIN THIS POM -->
+										<customProperty>serverHost=${docker.node.ip}</customProperty>
+										<customProperty>serverPort=10000</customProperty>
+										<customProperty>threads=30</customProperty>
+									</customProperties>
+								</configuration>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>

@@ -14,7 +14,7 @@
 	</modules>
 
 	<properties>
-		<scandium.version>1.1.0-SNAPSHOT</scandium.version>
+		<scandium.version>1.0.1</scandium.version>
 	</properties>
 
 	<repositories>
@@ -54,7 +54,7 @@
 				<plugin>
 					<groupId>org.jolokia</groupId>
 					<artifactId>docker-maven-plugin</artifactId>
-					<version>0.13.6</version>
+					<version>0.13.8</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
