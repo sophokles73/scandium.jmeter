@@ -49,6 +49,9 @@ public class PskDtlsServer implements CommandLineRunner {
 	@Value(value="${scandium.dtls.port}")
 	private int port;
 
+	@Value(value="${scandium.dtls.maxConnections}")
+	private int maxConnections;
+
 	public PskDtlsServer() {
 	}
 
@@ -68,7 +71,8 @@ public class PskDtlsServer implements CommandLineRunner {
 		// @Override
 		public void receiveData(final RawData request) {
 			if (request.getAddress() != null &&  request.getPort() > 0) {
-				connector.send(new RawData(request.getBytes(), request.getAddress(), request.getPort()));
+				// simply send back the message
+				connector.send(request);
 			} else {
 				LOGGER.info("Received message without sender address, discarding...");
 			}
@@ -85,7 +89,7 @@ public class PskDtlsServer implements CommandLineRunner {
 			.setPskStore(pskStore)
 			.setMaxFragmentLengthCode(3)
 			.build();
-		ConnectionStore connectionStore = new InMemoryConnectionStore(1000, 60);
+		ConnectionStore connectionStore = new InMemoryConnectionStore(maxConnections, 60);
 		dtlsConnector = new DTLSConnector(config, connectionStore);
 		dtlsConnector.setRawDataReceiver(new RawDataChannelImpl(dtlsConnector));
 
